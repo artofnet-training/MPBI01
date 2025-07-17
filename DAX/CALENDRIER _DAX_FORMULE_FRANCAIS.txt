@@ -1,0 +1,43 @@
+Calendrier = 
+VAR FY_Month_Starts = 4 //Premier mois de l'année fiscale
+RETURN
+    ADDCOLUMNS (
+        CALENDAR ( DATE ( 1950, 1, 1 ), DATE ( 2050, 12, 31 ) ),
+        "Date Comme Entier", FORMAT ( [Date], "YYYYMMDD" ),
+        "Année", YEAR ( [Date] ),
+        "Année Fiscale", YEAR ( [Date] )
+            - IF ( MONTH ( [Date] ) < FY_Month_Starts, 1, 0 ),
+        "Année chronologique inverse", YEAR ( [Date] ),
+        "Année pour tri inverse dans matrices", YEAR ( [Date] )*-1, //Trier la colonne année chronologique inverse par rapport à cette colonne (très utile pour les colonnes de matrices)
+        "Numéro Mois", FORMAT ( [Date], "MM" ),
+        "Numéro Mois Fiscal", MOD ( MONTH ( [Date] ) - FY_Month_Starts, 12 ) + 1,
+        "Numéro Année Mois", FORMAT ( [Date], "YYYY/MM" ),
+        "Semestre", "S"
+            & IF ( MONTH ( [Date] ) <= 6, 1, 2 ),
+        "Année Mois court", FORMAT ( [Date], "YYYY/mmm" ), //Ne pas oublier de trier par numéro année mois
+        "Année Mois long", FORMAT ( [Date], "YYYY mmmm" ), //Ne pas oublier de trier par numéro année mois
+        "Mois court", FORMAT ( [Date], "mmm" ), //Ne pas oublier de trier par numéro de mois
+        "Mois long", FORMAT ( [Date], "mmmm" ), //Ne pas oublier de trier par numéro de mois
+        "Mois long année", FORMAT ( [Date], "mmmm YYYY" ), //Ne pas oublier de trier par numéro année mois
+        "Mois court Année court", FORMAT( [Date], "MM-yy"), //Peut être trié avec la colonne ci-dessous
+        "Date courte comme entier", FORMAT( [Date], "MMYYY"), //Très utile pour afficher deux ou plusieurs mois d'années différentes côte à côte dans une matrice ou table
+		"Groupe Mois", IF(MONTH([Date])=1 || MONTH([Date])=4 || MONTH([Date])=7 || MONTH([Date])=10,1,IF(MONTH([Date])=2 || MONTH([Date])=5 || MONTH([Date])=8 || MONTH([Date])=11,2,3)), //ceci est utile pour afficher des calendriers annuels (avec 3 colonnes de mois et 4 lignes de mois)
+        "Numéro Jour Semaine", WEEKDAY ( [Date], 2 ),
+        "Nom Jour Semaine", FORMAT ( [Date], "dddd" ), //Ne pas oublier de trier par numéro de jour
+		"Week-End", IF(OR(WEEKDAY([DATE],2)=6,WEEKDAY([DATE],2)=7),TRUE,FALSE),
+        "Nom Jour Semaine court", FORMAT ( [Date], "ddd" ), //Ne pas oublier de trier par numéro de jour
+		"Numéro jour mois", DAY([Date]),
+        "Numéro jour année", DATEDIFF(DATE(year([Date]),1,1),[Date],DAY),
+        "Début du Mois", Date(YEAR([Date]),MONTH([Date]),1),
+        "Fin du Mois", EOMONTH([Date],0),
+        "Trimestre", "Q" & FORMAT ( [Date], "Q" ),
+        "Numéro Semaine", "Semaine" & WEEKNUM ( [Date], 2 ),
+        "Semaine", WEEKNUM ( [Date], 2 ),
+        "Numéro Semaine ISO 8601", WEEKNUM ( [Date], 21 ),
+        "Semaine ISO 8601", "Semaine" & WEEKNUM ( [Date], 21 ),
+		"Numéro semaine du mois", INT((DAY([Date])-1)/7)+1,
+        "Année Trimestre", FORMAT ( [Date], "YYYY" ) & "/T"
+            & FORMAT ( [Date], "Q" ),
+		//Ici le partie pour les filtres de certaines tables spécifiques
+       "Plage dates spécifique pour slicer", If(AND([Date]>=DATE ( 2000, 1, 1 ),[Date]<= DATE ( 2003, 12, 31 )),1,0)
+    )

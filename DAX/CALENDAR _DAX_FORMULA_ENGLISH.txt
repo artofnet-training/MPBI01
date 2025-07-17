@@ -1,0 +1,40 @@
+CALENDAR = 
+VAR FY_Month_Starts = 4 //1st month of fiscal year
+RETURN
+    ADDCOLUMNS (
+        CALENDAR ( DATE ( 1950, 1, 1 ), DATE ( 2050, 12, 31 ) ),
+        "Date as Integer", FORMAT ( [Date], "YYYYMMDD" ),
+        "Year", YEAR ( [Date] ),
+        "Fiscal Year", YEAR ( [Date] ) - IF ( MONTH ( [Date] ) < FY_Month_Starts, 1, 0 ),
+        "Reverse order year", YEAR ( [Date] ),
+        "year for reverse sorting in matrix", YEAR ( [Date] )*-1, //Sort hte reverse order year by this column (very useful in matrix)
+        "Month Number", FORMAT ( [Date], "MM" ),
+        "Fiscal Month Number", MOD ( MONTH ( [Date] ) - FY_Month_Starts, 12 ) + 1,
+        "Year/month Number", FORMAT ( [Date], "YYYY/MM" ),
+        "Semester", "S" & IF ( MONTH ( [Date] ) <= 6, 1, 2 ),
+        "Year Month short", FORMAT ( [Date], "YYYY/mmm" ), //don't forget to sort by Year/month Number
+        "Year Month long", FORMAT ( [Date], "YYYY mmmm" ), //don't forget to sort by Year/month Number
+        "Month short", FORMAT ( [Date], "mmm" ), //don't forget to sort by Month Number
+        "Month long", FORMAT ( [Date], "mmmm" ), //don't forget to sort by Month Number
+        "Month long Year", FORMAT ( [Date], "mmmm YYYY" ), //don't forget to sort by Year/month Number
+        "Month long Year short", FORMAT( [Date], "MM-yy"), //Could be sorted by the column here below
+        "Short Date as Integer", FORMAT( [Date], "MMYYY"), //Very useful to to display 2 or more months from different years side by side in a matrix or table
+	"Month Group", IF(MONTH([Date])=1 || MONTH([Date])=4 || MONTH([Date])=7 || MONTH([Date])=10,1,IF(MONTH([Date])=2 || MONTH([Date])=5 || MONTH([Date])=8 || MONTH([Date])=11,2,3)), //very useful for displaying annual calendars with 3 colulmns and 4 rows of months.
+        "Week Day Number", WEEKDAY ( [Date], 2 ),
+        "Week Day name", FORMAT ( [Date], "dddd" ), //Don't forget to sort by Day Number
+	"WeekEnd", IF(OR(WEEKDAY([DATE],2)=6,WEEKDAY([DATE],2)=7),TRUE,FALSE),
+        "Week Day name short", FORMAT ( [Date], "ddd" ), //Don't forget to sort by Day Number
+	"Day Number", DAY([Date]),
+        "Day of the year", DATEDIFF(DATE(year([Date]),1,1),[Date],DAY),
+        "Month Start", Date(YEAR([Date]),MONTH([Date]),1),
+        "Month End", EOMONTH([Date],0),
+        "Quarter", "Q" & FORMAT ( [Date], "Q" ),
+        "Week Number", "Week" & WEEKNUM ( [Date], 2 ),
+        "Week", WEEKNUM ( [Date], 2 ),
+        "Week mnumber (ISO 8601)", WEEKNUM ( [Date], 21 ),
+        "Week ISO 8601", "Week" & WEEKNUM ( [Date], 21 ),
+	"Week number in month", INT((DAY([Date])-1)/7)+1,
+        "Year/Quarter", FORMAT ( [Date], "YYYY" ) & "/Q" & FORMAT ( [Date], "Q" ),
+		//The next line is for filtering certain tables
+       "Specific date for slicer", If(AND([Date]>=DATE ( 2000, 1, 1 ),[Date]<= DATE ( 2003, 12, 31 )),1,0)
+)
